@@ -21,7 +21,7 @@ public class VisitController {
 
     @GetMapping("/visits")
     public List<Visit> findAll(@RequestParam(value = "petId", required = false) Integer petId) {
-        log.info("GET finaAll petId [" + petId + "]");
+        log.info("GET finaAll petId [{}]", petId);
         if (petId == null) {
             return visitRepository.findAll();
         } else {
