@@ -2,10 +2,10 @@ package com.bw.visit.controller;
 
 import com.bw.visit.domain.Visit;
 import com.bw.visit.repository.VisitRepository;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -27,6 +27,13 @@ public class VisitController {
         } else {
             return visitRepository.findByPetId(petId);
         }
+    }
+
+    @PostMapping("/visits")
+    @ResponseStatus(HttpStatus.CREATED)
+    public Visit add(@RequestBody @Valid Visit visit) {
+        log.info("POST add {}", visit);
+        return visitRepository.save(visit);
     }
 
 }
