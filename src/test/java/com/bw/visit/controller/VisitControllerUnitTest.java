@@ -2,17 +2,22 @@ package com.bw.visit.controller;
 
 import com.bw.visit.domain.Visit;
 import com.bw.visit.repository.VisitRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -24,6 +29,8 @@ public class VisitControllerUnitTest {
 
     @MockBean
     private VisitRepository visitRepository;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Test
     public void testFindAll() throws Exception {
@@ -41,6 +48,27 @@ public class VisitControllerUnitTest {
                 .perform(get("/visits?petId=7"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", hasSize(2)));
+    }
+
+    @Test
+    public void testAdd() throws Exception {
+        objectMapper.findAndRegisterModules();
+        Visit visit = createVisit();
+        when(visitRepository.save(visit)).thenReturn(visit);
+        mockMvc
+                .perform(post("/visits")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsBytes(visit)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.description", is("Test")));
+    }
+
+    private Visit createVisit() {
+        Visit visit = new Visit();
+        visit.setVisitDate(LocalDate.now());
+        visit.setDescription("Test");
+        visit.setPetId(8);
+        return visit;
     }
 
 }
